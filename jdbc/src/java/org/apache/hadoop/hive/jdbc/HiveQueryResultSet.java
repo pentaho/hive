@@ -19,6 +19,7 @@
 package org.apache.hadoop.hive.jdbc;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -60,13 +61,27 @@ public class HiveQueryResultSet extends HiveBaseResultSet {
   private List<String> fetchedRows;
   private Iterator<String> fetchedRowsItr;
 
+  @SuppressWarnings("unchecked")
+  public HiveQueryResultSet(HiveInterface client, Statement statement, int maxRows) throws SQLException {
+    this(client, maxRows);
+    this.statement = statement;
+  }
+  
+  @SuppressWarnings("unchecked")
   public HiveQueryResultSet(HiveInterface client, int maxRows) throws SQLException {
     this.client = client;
     this.maxRows = maxRows;
     initSerde();
     row = Arrays.asList(new Object[columnNames.size()]);
   }
-
+  
+  @SuppressWarnings("unchecked")
+  public HiveQueryResultSet(HiveInterface client, Statement statement) throws SQLException {
+    this(client);
+    this.statement = statement;
+  }
+  
+  @SuppressWarnings("unchecked")
   public HiveQueryResultSet(HiveInterface client) throws SQLException {
     this(client, 0);
   }
