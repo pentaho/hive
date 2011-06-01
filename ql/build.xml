@@ -32,6 +32,28 @@
   <import file="../build-common.xml"/>
   <property name="ql.test.clientpositive.exclude" value="${minimr.query.files}"/>
 
+  <path id="test.classpath">
+    <pathelement location="${test.build.classes}" />
+    <pathelement location="" />
+    <pathelement location="${hadoop.conf.dir}"/>
+    <pathelement location="${test.src.data.dir}/conf"/>
+    <pathelement location="${hive.conf.dir}"/>
+    <pathelement location="${hive.root}/cli/lib/jline-0.9.94.jar"/>
+    <pathelement location="${hadoop.oldstyle-name.test.jar}"/>
+    <pathelement location="${hadoop.newstyle-name.test.jar}"/>
+    <pathelement location="${jetty.test.jar}"/>
+    <pathelement location="${servlet.test.jar}"/>
+    <pathelement location="${jasper.test.jar}"/>
+    <pathelement location="${jasperc.test.jar}"/>
+    <pathelement location="${jsp.test.jar}"/>
+    <pathelement location="${common.jar}"/>
+    <pathelement location="${hive.root}/lib/derby.jar"/>
+    <fileset dir="${hive.root}" includes="testlibs/*.jar"/>
+    <fileset dir="${hadoop.root}/lib" includes="*.jar"/>
+    <fileset dir="${hadoop.root}/lib" includes="jsp-2.1/*.jar"/>
+    <path refid="classpath"/>
+  </path>
+
   <target name="thriftif" depends="check-thrift-home">
     <echo message="${ant.project.name}"/>
     <fail unless="thrift.home">You must set the 'thrift.home' property!</fail>
@@ -41,7 +63,7 @@
     </exec>
   </target>
 
-  <target name="gen-test" depends="test-conditions, test-init" >
+  <target name="gen-test" depends="deploy-ant-tasks, test-conditions, test-init" >
     <echo message="${ant.project.name}"/>
     <taskdef name="qtestgen" classname="org.apache.hadoop.hive.ant.QTestGenTask"
              classpath="${build.dir.hive}/anttasks/hive-anttasks-${version}.jar:${build.ivy.lib.dir}/default/velocity-${velocity.version}.jar:${build.ivy.lib.dir}/default/commons-collections-${commons-collections.version}.jar:${build.ivy.lib.dir}/default/commons-lang-${commons-lang.version}.jar:${build.ivy.lib.dir}/default/derby-${derby.version}.jar"/>
