@@ -166,20 +166,22 @@ public class HiveQueryResultSet extends HiveBaseResultSet {
         LOG.debug("Fetched row string: " + rowStr);
       }
 
-      StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
-      List<? extends StructField> fieldRefs = soi.getAllStructFieldRefs();
-      Object data = serde.deserialize(new BytesWritable(rowStr.getBytes()));
+      if (!"".equals(rowStr)) {
+        StructObjectInspector soi = (StructObjectInspector) serde.getObjectInspector();
+        List<? extends StructField> fieldRefs = soi.getAllStructFieldRefs();
+        Object data = serde.deserialize(new BytesWritable(rowStr.getBytes()));
 
-      assert row.size() == fieldRefs.size() : row.size() + ", " + fieldRefs.size();
-      for (int i = 0; i < fieldRefs.size(); i++) {
-        StructField fieldRef = fieldRefs.get(i);
-        ObjectInspector oi = fieldRef.getFieldObjectInspector();
-        Object obj = soi.getStructFieldData(data, fieldRef);
-        row.set(i, convertLazyToJava(obj, oi));
-      }
+        assert row.size() == fieldRefs.size() : row.size() + ", " + fieldRefs.size();
+        for (int i = 0; i < fieldRefs.size(); i++) {
+          StructField fieldRef = fieldRefs.get(i);
+          ObjectInspector oi = fieldRef.getFieldObjectInspector();
+          Object obj = soi.getStructFieldData(data, fieldRef);
+          row.set(i, convertLazyToJava(obj, oi));
+        }
 
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Deserialized row: " + row);
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Deserialized row: " + row);
+        }
       }
     } catch (HiveServerException e) {
       if (e.getErrorCode() == 0) { // error code == 0 means reached the EOF
@@ -192,7 +194,7 @@ public class HiveQueryResultSet extends HiveBaseResultSet {
       throw new SQLException("Error retrieving next row", ex);
     }
     // NOTE: fetchOne dosn't throw new SQLException("Method not supported").
-    return true;
+    return !"".equals(rowStr);
   }
 
   @Override
