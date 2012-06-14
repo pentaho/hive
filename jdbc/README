@@ -1,0 +1,6 @@
+This includes modifications required by Pentaho to utilize the JDBC driver. The build-pentaho.xml Ant script can be used
+to build this project against any version of Hadoop and Hive.
+
+Example invocation:
+
+ant -f build-pentaho.xml dist
