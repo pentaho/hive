@@ -829,7 +829,7 @@ TYPICAL TARGET SEQUENCE
       
       Publishes the jar file for this project to a Maven2 repository.
       ====================================================================-->
-  <target name="publish-nojar" depends="install-antcontrib,create-pom,ivy.deliver,publish-nojar.internal">
+  <target name="publish-nojar" depends="install-antcontrib,ivy.deliver,publish-nojar.internal">
     <if>
       <equals arg1="${tests.publish}" arg2="true" />
       <then>
@@ -840,7 +840,7 @@ TYPICAL TARGET SEQUENCE
     </if>
   </target>
 
-  <target name="publish-nojar.internal" depends="install-antcontrib,create-pom,ivy.deliver">
+  <target name="publish-nojar.internal" depends="install-antcontrib,ivy.deliver">
     <antcall target="maven-publish-dependencies">
       <param name="publish.groupId" value="${ivy.artifact.group}" />
       <param name="publish.artifactId" value="${ivy.artifact.id}" />
@@ -956,7 +956,10 @@ TYPICAL TARGET SEQUENCE
             <arg value="deploy:deploy-file" />
             <arg value="-DrepositoryId=${ivy.repository.id}" />
             <arg value="-Durl=${ivy.repository.publish}" />
-            <arg value="-DpomFile=${publish.pomFile}" />
+            <arg value="-DgroupId=${ivy.artifact.group}" />
+            <arg value="-DartifactId=${ivy.artifact.id}" />
+            <arg value="-Dversion=${project.revision}" />
+            <arg value="-Dpackaging=jar" />
             <arg value="-Dfile=${publish.file}" />
           </exec>
         </then>
@@ -965,7 +968,10 @@ TYPICAL TARGET SEQUENCE
             <arg value="deploy:deploy-file" />
             <arg value="-DrepositoryId=${ivy.repository.id}" />
             <arg value="-Durl=${ivy.repository.publish}" />
-            <arg value="-DpomFile=${publish.pomFile}" />
+            <arg value="-DgroupId=${ivy.artifact.group}" />
+            <arg value="-DartifactId=${ivy.artifact.id}" />
+            <arg value="-Dversion=${project.revision}" />
+            <arg value="-Dpackaging=jar" />
             <arg value="-Dfile=${publish.file}" />
           </exec>
         </else>
