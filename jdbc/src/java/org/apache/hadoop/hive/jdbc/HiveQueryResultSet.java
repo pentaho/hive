@@ -194,7 +194,7 @@ public class HiveQueryResultSet extends HiveBaseResultSet {
       throw new SQLException("Error retrieving next row", ex);
     }
     // NOTE: fetchOne dosn't throw new SQLException("Method not supported").
-    return !"".equals(rowStr);
+    return true;
   }
 
   @Override
