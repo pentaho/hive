@@ -3,22 +3,26 @@
   <info organisation="pentaho" module="${ivy.artifact.id}" revision="${project.revision}" />
 
   <configurations>
-    <include file="${ivy.conf.dir}/common-configurations.xml"/>
     <conf name="default" />
     <conf name="test" />
   </configurations>
   <dependencies>
-    <dependency org="org.apache.hive" name="hive-service" rev="${version}"
-                conf="compile->default" />
-    <dependency org="org.apache.thrift" name="libthrift" rev="${libthrift.version}"
-                transitive="false"/>
-    <dependency org="commons-logging" name="commons-logging" rev="${commons-logging.version}"
-                transitive="false"/>
-    <dependency org="sqlline" name="sqlline" rev="${sqlline.version}" branch="${sqlline.branch}"
-                transitive="false"/>
+    <dependency org="org.apache.hive" name="hive-common" rev="${dependency.hive.revision}" transitive="false"/>
+    <dependency org="org.apache.hive" name="hive-service" rev="${dependency.hive.revision}" transitive="false"/>
+    <dependency org="org.apache.hive" name="hive-serde" rev="${dependency.hive.revision}" transitive="false"/>
+    <dependency org="org.apache.hive" name="hive-metastore" rev="${dependency.hive.revision}" transitive="false"/>
+    <dependency org="org.apache.hive" name="hive-exec" rev="${dependency.hive.revision}" transitive="false"/>
+    
+    <dependency org="commons-cli" name="commons-cli" rev="1.2" transitive="false"/>
+    <dependency org="commons-logging" name="commons-logging" rev="${commons-logging.version}" transitive="false"/>
+    <dependency org="sqlline" name="sqlline" rev="${sqlline.version}" transitive="false"/>
+    
+    <dependency org="org.apache.thrift" name="libfb303" rev="0.9.0" transitive="false"/>
 
-    <!-- Test Dependencies -->
-    <dependency org="junit" name="junit" rev="${junit.version}" conf="test->default" />
+    <dependency org="org.apache.hadoop" name="hadoop-client" rev="${dependency.hadoop.revision}">
+      <exclude org="junit"/>
+      <exclude org="ant"/>
+    </dependency>
 
   </dependencies>
 </ivy-module>

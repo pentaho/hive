@@ -22,4 +22,5 @@
 -->
 <project name="jdbc" default="jar">
   <import file="build-res/subfloor.xml"/>
+  <loadproperties srcfile="${ivy.conf.dir}/libraries.properties"/>
 </project>
