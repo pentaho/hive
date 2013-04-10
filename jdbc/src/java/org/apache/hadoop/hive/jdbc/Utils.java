@@ -36,15 +36,15 @@ public class Utils {
       return Types.FLOAT;
     } else if ("double".equalsIgnoreCase(type)) {
       return Types.DOUBLE;
-    } else if ("boolean".equalsIgnoreCase(type)) {
+    } else if ("bool".equalsIgnoreCase(type) || "boolean".equalsIgnoreCase(type)) {
       return Types.BOOLEAN;
-    } else if ("tinyint".equalsIgnoreCase(type)) {
+    } else if ("byte".equalsIgnoreCase(type) || "tinyint".equalsIgnoreCase(type)) {
       return Types.TINYINT;
     } else if ("smallint".equalsIgnoreCase(type)) {
       return Types.SMALLINT;
-    } else if ("int".equalsIgnoreCase(type)) {
+    } else if ("i32".equalsIgnoreCase(type) || "int".equalsIgnoreCase(type)) {
       return Types.INTEGER;
-    } else if ("bigint".equalsIgnoreCase(type)) {
+    } else if ("i64".equalsIgnoreCase(type) || "bigint".equalsIgnoreCase(type)) {
       return Types.BIGINT;
     } else if ("timestamp".equalsIgnoreCase(type)) {
       return Types.TIMESTAMP;
