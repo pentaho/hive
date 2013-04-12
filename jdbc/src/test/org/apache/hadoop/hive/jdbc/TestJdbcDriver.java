@@ -58,9 +58,11 @@ public class TestJdbcDriver extends TestCase {
   private static final String partitionedTableComment = "Partitioned table";
   private static final String dataTypeTableName = "testDataTypeTable";
   private static final String dataTypeTableComment = "Table with many column data types";
+  private static String preparedStatementTestTable = "testPreparedStmtTable";
   private final HiveConf conf;
   private final Path dataFilePath;
   private final Path dataTypeDataFilePath;
+  private final Path dataFilePathForPreparedStatementTests;
   private Connection con;
   private boolean standAloneServer = false;
 
@@ -71,6 +73,7 @@ public class TestJdbcDriver extends TestCase {
         .replace("c:", "");
     dataFilePath = new Path(dataFileDir, "kv1.txt");
     dataTypeDataFilePath = new Path(dataFileDir, "datatypes.txt");
+	dataFilePathForPreparedStatementTests = new Path(dataFileDir, "prepared_stmt.txt");
     standAloneServer = "true".equals(System
         .getProperty("test.service.standalone.server"));
   }
@@ -109,6 +112,19 @@ public class TestJdbcDriver extends TestCase {
     // load data
     res = stmt.executeQuery("load data local inpath '"
         + dataFilePath.toString() + "' into table " + tableName);
+    assertFalse(res.next());
+
+    // create the prepared statement test table
+    String preparedStatementTableDDL = "create table "+preparedStatementTestTable
+      +"( int_column int, "
+      +"  string_column string, "
+      +"  boolean_column boolean)";
+    res = stmt.executeQuery(preparedStatementTableDDL);
+    assertFalse(res.next());
+
+    // load data
+    res = stmt.executeQuery("load data local inpath '"
+        + dataFilePathForPreparedStatementTests.toString() + "' into table " + preparedStatementTestTable);
     assertFalse(res.next());
 
     // also initialize a paritioned table to test against.
@@ -184,6 +200,9 @@ public class TestJdbcDriver extends TestCase {
     res = stmt.executeQuery("drop table " + partitionedTableName);
     assertFalse(res.next());
     res = stmt.executeQuery("drop table " + dataTypeTableName);
+    assertFalse(res.next());
+
+    res = stmt.executeQuery("drop table " + preparedStatementTestTable);
     assertFalse(res.next());
 
     con.close();
@@ -516,12 +535,16 @@ public class TestJdbcDriver extends TestCase {
     doTestErrorCase("SELECT invalid_function(under_col) FROM " + tableName,
     "Invalid function", invalidSyntaxSQLState, 10011);
 
-    // TODO: execute errors like this currently don't return good error
-    // codes and messages. This should be fixed.
+    // TODO: execute errors like this currently don't return good messages (i.e.
+    // 'Table already exists'). This is because the Driver class calls
+    // Task.executeTask() which swallows meaningful exceptions and returns a
+    // status
+    // code. This should be refactored.
     doTestErrorCase(
         "create table " + tableName + " (key int, value string)",
-        "FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask",
-        "08S01", 1);
+        "Query returned non-zero code: 9, cause: FAILED: Execution Error, "
+        + "return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask",
+        "08S01", 9);
   }
 
   private void doTestErrorCase(String sql, String expectedMessage,
@@ -996,7 +1019,35 @@ public class TestJdbcDriver extends TestCase {
     assertEquals(0, meta.getScale(13));
 
     assertEquals("b", meta.getColumnName(14));
+
+    assertEquals(Types.INTEGER, meta.getColumnType(1));
+    assertEquals(Types.BOOLEAN, meta.getColumnType(2));
+    assertEquals(Types.DOUBLE, meta.getColumnType(3));
+    assertEquals(Types.VARCHAR, meta.getColumnType(4));
+    assertEquals(Types.VARCHAR, meta.getColumnType(5));
+    assertEquals(Types.VARCHAR, meta.getColumnType(6));
+    assertEquals(Types.VARCHAR, meta.getColumnType(7));
+    assertEquals(Types.VARCHAR, meta.getColumnType(8));
+    assertEquals(Types.TINYINT, meta.getColumnType(9));
+    assertEquals(Types.SMALLINT, meta.getColumnType(10));
+    assertEquals(Types.FLOAT, meta.getColumnType(11));
+    assertEquals(Types.BIGINT, meta.getColumnType(12));
+    assertEquals(Types.INTEGER, meta.getColumnType(13));
     assertEquals(Types.VARCHAR, meta.getColumnType(14));
+
+    assertEquals("int", meta.getColumnTypeName(1));
+    assertEquals("boolean", meta.getColumnTypeName(2));
+    assertEquals("double", meta.getColumnTypeName(3));
+    assertEquals("string", meta.getColumnTypeName(4));
+    assertEquals("string", meta.getColumnTypeName(5));
+    assertEquals("string", meta.getColumnTypeName(6));
+    assertEquals("string", meta.getColumnTypeName(7));
+    assertEquals("string", meta.getColumnTypeName(8));
+    assertEquals("tinyint", meta.getColumnTypeName(9));
+    assertEquals("smallint", meta.getColumnTypeName(10));
+    assertEquals("float", meta.getColumnTypeName(11));
+    assertEquals("bigint", meta.getColumnTypeName(12));
+    assertEquals("int", meta.getColumnTypeName(13));
     assertEquals("string", meta.getColumnTypeName(14));
     assertEquals(Integer.MAX_VALUE, meta.getColumnDisplaySize(14));
     assertEquals(Integer.MAX_VALUE, meta.getPrecision(14));
@@ -1009,6 +1060,21 @@ public class TestJdbcDriver extends TestCase {
     assertEquals(29, meta.getPrecision(15));
     assertEquals(9, meta.getScale(15));
 
+    assertEquals(16, meta.getColumnDisplaySize(1));
+    assertEquals(8, meta.getColumnDisplaySize(2));
+    assertEquals(16, meta.getColumnDisplaySize(3));
+    assertEquals(32, meta.getColumnDisplaySize(4));
+    assertEquals(32, meta.getColumnDisplaySize(5));
+    assertEquals(32, meta.getColumnDisplaySize(6));
+    assertEquals(32, meta.getColumnDisplaySize(7));
+    assertEquals(32, meta.getColumnDisplaySize(8));
+    assertEquals(2, meta.getColumnDisplaySize(9));
+    assertEquals(32, meta.getColumnDisplaySize(10));
+    assertEquals(32, meta.getColumnDisplaySize(11));
+    assertEquals(32, meta.getColumnDisplaySize(12));
+    assertEquals(16, meta.getColumnDisplaySize(13));
+    assertEquals(32, meta.getColumnDisplaySize(14));
+    
     assertEquals("c18", meta.getColumnName(16));
     assertEquals(Types.DECIMAL, meta.getColumnType(16));
     assertEquals("decimal", meta.getColumnTypeName(16));
@@ -1020,6 +1086,11 @@ public class TestJdbcDriver extends TestCase {
       assertFalse(meta.isAutoIncrement(i));
       assertFalse(meta.isCurrency(i));
       assertEquals(ResultSetMetaData.columnNullable, meta.isNullable(i));
+
+      int expectedPrecision = i == 3 ? -1 : 0;
+      int expectedScale = i == 3 ? -1 : 0;
+      assertEquals(expectedPrecision, meta.getPrecision(i));
+      assertEquals(expectedScale, meta.getScale(i));
     }
   }
 
@@ -1050,8 +1121,65 @@ public class TestJdbcDriver extends TestCase {
     assertEquals("Invalid DriverPropertyInfo required", false, dpi.required);
   }
 
+  public void testPreparedStatementAndResultSet() throws SQLException {
 
-  /**
+    //  test execution with boolean returned
+    PreparedStatement preparedStatement = con.prepareStatement("select * from "+preparedStatementTestTable);
+    assertTrue(preparedStatement.execute());
+
+    //  test execution with result set returned
+    preparedStatement = con.prepareStatement("select * from "+preparedStatementTestTable);
+    ResultSet resultSet = preparedStatement.executeQuery();
+    assertTrue(resultSet!=null);
+
+    //  test using max rows
+    int maxRows = 1;
+    int numRowsReturned = 0;
+    con.prepareStatement("select * from "+preparedStatementTestTable);
+    preparedStatement.setMaxRows(1);
+    resultSet = preparedStatement.executeQuery();
+    for(numRowsReturned=0; resultSet.next(); numRowsReturned++) {
+      ;
+    }
+    assertTrue(numRowsReturned==1);
+
+    //  test getting the columns and the sign
+    preparedStatement = con.prepareStatement("select * from "+preparedStatementTestTable);
+    resultSet = preparedStatement.executeQuery();
+    ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+    assertTrue(resultSet!=null);
+
+    // reminder: this is the table:
+    //  INT      intColumn
+    //  STRING   stringColumn
+    //  BOOLEAN  booleanColumn
+    int columnIndex = 0;
+    columnIndex = resultSet.findColumn("int_column");
+    assertTrue(columnIndex == 1);
+    assertTrue(resultSetMetaData.isSigned(1));
+
+    columnIndex = resultSet.findColumn("string_column");
+    assertTrue(columnIndex == 2);
+    assertFalse(resultSetMetaData.isSigned(2));
+
+    columnIndex = resultSet.findColumn("boolean_column");
+    assertTrue(columnIndex == 3);
+    assertFalse(resultSetMetaData.isSigned(3));
+
+    //  test clear warnings
+    preparedStatement.clearWarnings();
+    assertTrue(preparedStatement.getWarnings()==null);
+
+    //  test to see if column name is shown in the exception
+    try {
+      resultSet.findColumn("sean");
+    }
+    catch (SQLException se) {
+      assertTrue(se.getMessage().startsWith("Column not found"));
+    }
+  }
+
+/**
    * validate schema generated by "set" command
    * @throws SQLException
    */
