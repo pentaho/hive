@@ -8,3 +8,7 @@ build-eclipse
 *.launch
 *~
 metastore_db
+hive-jdbc-pom.xml
+/jdbc/lib
+/jdbc/bin
+/jdbc/dist

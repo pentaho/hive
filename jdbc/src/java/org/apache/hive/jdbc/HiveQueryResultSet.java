@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.hive.service.HiveServerException;
 import org.apache.hive.service.cli.TableSchema;
 import org.apache.hive.service.cli.thrift.TCLIService;
 import org.apache.hive.service.cli.thrift.TColumnDesc;
@@ -52,9 +53,10 @@ public class HiveQueryResultSet extends HiveBaseResultSet {
   private TCLIService.Iface client;
   private TOperationHandle stmtHandle;
   private TSessionHandle sessHandle;
-  private int maxRows;
-  private int fetchSize;
+  
+  private int maxRows = 0;
   private int rowsFetched = 0;
+  private int fetchSize = 50;
 
   private List<TRow> fetchedRows;
   private Iterator<TRow> fetchedRowsItr;
@@ -175,6 +177,8 @@ public class HiveQueryResultSet extends HiveBaseResultSet {
         String columnTypeName = TYPE_NAMES.get(
             columns.get(pos).getTypeDesc().getTypes().get(0).getPrimitiveEntry().getType());
         columnTypes.add(columnTypeName);
+        namesSb.append(columnName);
+        typesSb.append(columnTypeName.toLowerCase());
       }
     } catch (SQLException eS) {
       throw eS; // rethrow the SQLException as is
@@ -231,6 +235,7 @@ public class HiveQueryResultSet extends HiveBaseResultSet {
       String rowStr = "";
       if (fetchedRowsItr.hasNext()) {
         row = fetchedRowsItr.next();
+        rowStr = row.toString(); 
       } else {
         return false;
       }
@@ -239,9 +244,12 @@ public class HiveQueryResultSet extends HiveBaseResultSet {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Fetched row string: " + rowStr);
       }
-
-    } catch (SQLException eS) {
-      throw eS;
+    } catch (HiveServerException e) {
+      if (e.getErrorCode() == 0) { // error code == 0 means reached the EOF
+        return false;
+      } else {
+        throw new SQLException("Error retrieving next row", e);
+      }
     } catch (Exception ex) {
       ex.printStackTrace();
       throw new SQLException("Error retrieving next row", ex);
@@ -273,5 +281,4 @@ public class HiveQueryResultSet extends HiveBaseResultSet {
     }
     return fetchSize;
   }
-
 }
