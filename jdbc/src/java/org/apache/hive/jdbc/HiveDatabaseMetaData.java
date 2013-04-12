@@ -311,8 +311,14 @@ public class HiveDatabaseMetaData implements DatabaseMetaData {
     .build();
   }
 
+  /**
+   * Returns the identifier quote string.
+   *
+   * @return String
+   * @throws
+   */
   public String getIdentifierQuoteString() throws SQLException {
-    throw new SQLException("Method not supported");
+    return "'";
   }
 
   public ResultSet getImportedKeys(String catalog, String schema, String table)
@@ -721,8 +727,13 @@ public class HiveDatabaseMetaData implements DatabaseMetaData {
     throw new SQLException("Method not supported");
   }
 
+  /**
+   *  Returns a true as the database meta data is readonly.
+   *
+   *  @return boolean true
+   */
   public boolean isReadOnly() throws SQLException {
-    throw new SQLException("Method not supported");
+    return true;
   }
 
   public boolean locatorsUpdateCopy() throws SQLException {
@@ -980,7 +991,7 @@ public class HiveDatabaseMetaData implements DatabaseMetaData {
 
   public boolean supportsResultSetConcurrency(int type, int concurrency)
       throws SQLException {
-    throw new SQLException("Method not supported");
+    return supportsResultSetType(type) && concurrency == ResultSet.CONCUR_READ_ONLY;
   }
 
   public boolean supportsResultSetHoldability(int holdability)
@@ -989,7 +1000,7 @@ public class HiveDatabaseMetaData implements DatabaseMetaData {
   }
 
   public boolean supportsResultSetType(int type) throws SQLException {
-    return true;
+    return type == ResultSet.TYPE_FORWARD_ONLY;
   }
 
   public boolean supportsSavepoints() throws SQLException {
@@ -1052,9 +1063,14 @@ public class HiveDatabaseMetaData implements DatabaseMetaData {
     throw new SQLException("Method not supported");
   }
 
-  public boolean supportsTransactionIsolationLevel(int level)
-      throws SQLException {
-    throw new SQLException("Method not supported");
+  /**
+   * Always returns a false as the database does not support transactions.
+   *
+   * @param level - the level of isolation
+   * @return boolean false
+   */
+  public boolean supportsTransactionIsolationLevel(int level) {
+    return false;
   }
 
   public boolean supportsTransactions() throws SQLException {
