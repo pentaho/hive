@@ -638,7 +638,6 @@ public class HiveConnection implements java.sql.Connection {
    */
 
   public void setReadOnly(boolean readOnly) throws SQLException {
-    // TODO Auto-generated method stub
     if(!readOnly) {
       throw new SQLException("Method not supported - setReadOnly(false)");
     }
