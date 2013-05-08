@@ -604,6 +604,20 @@ public class HiveDatabaseMetaData implements DatabaseMetaData {
 
   public ResultSet getTables(String catalog, String schemaPattern,
                              String tableNamePattern, String[] types) throws SQLException {
+    
+    boolean tables = false;
+    for(String type : types) {
+      if("TABLE".equals(type)) tables = true;
+    }
+    // HACK!!!
+    // If we're looking for tables, execute "show tables" query instead
+    if(tables) {
+      HiveStatement showTables = new HiveStatement(client, sessHandle);
+      showTables.executeQuery("show tables");
+      ResultSet rs = showTables.getResultSet();
+      return rs;
+    }
+    
     TGetTablesResp getTableResp;
     if (schemaPattern == null) {
       // if schemaPattern is null it means that the schemaPattern value should not be used to narrow the search
@@ -634,6 +648,7 @@ public class HiveDatabaseMetaData implements DatabaseMetaData {
     .setStmtHandle(getTableResp.getOperationHandle())
     .build();
   }
+    
 
   /**
    * We sort the output of getTables to guarantee jdbc compliance.
