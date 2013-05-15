@@ -34,6 +34,7 @@ import org.apache.hadoop.hive.metastore.TableType;
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
 import org.apache.hadoop.hive.metastore.api.Table;
 import org.apache.hadoop.hive.service.HiveInterface;
+import org.apache.hadoop.hive.jdbc.HiveStatement;
 import org.apache.thrift.TException;
 
 /**
@@ -575,6 +576,25 @@ public class HiveDatabaseMetaData implements java.sql.DatabaseMetaData {
 
   public ResultSet getTables(String catalog, String schemaPattern,
                              String tableNamePattern, String[] types) throws SQLException {
+    
+    boolean tables = false;
+    if(types == null) {
+      tables = true;
+    }
+    else {
+      for(String type : types) {
+        if("TABLE".equals(type)) tables = true;
+      }
+    }
+    // HACK!!!
+    // If we're looking for tables, execute "show tables" query instead
+    if(tables) {
+      HiveStatement showTables = new HiveStatement(client);
+      showTables.executeQuery("show tables");
+      ResultSet rs = showTables.getResultSet();
+      return rs;
+    }
+    
     final List<String> tablesstr;
     final List<JdbcTable> resultTables = new ArrayList<JdbcTable>();
     final String resultCatalog;
@@ -1097,6 +1117,10 @@ public class HiveDatabaseMetaData implements java.sql.DatabaseMetaData {
 
   public <T> T unwrap(Class<T> iface) throws SQLException {
     throw new SQLException("Method not supported");
+  }
+  
+  public HiveInterface getClient() {
+    return client;
   }
 
   public static void main(String[] args) throws SQLException {

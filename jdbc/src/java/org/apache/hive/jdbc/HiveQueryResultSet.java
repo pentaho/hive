@@ -282,7 +282,7 @@ public class HiveQueryResultSet extends HiveBaseResultSet {
     return fetchSize;
   }
   
-  // TODO: REMOVE THIS HACK!!!! Hive's "show tables" command returns a column name of "tab_name" instead of the
+  //TODO: REMOVE THIS HACK!!!! Hive's "show tables" command returns a column name of "tab_name" instead of the
   // JDBC-compliant TABLE_NAME
   @Override
   public String getString(String columnName) throws SQLException {
@@ -299,15 +299,16 @@ public class HiveQueryResultSet extends HiveBaseResultSet {
     }
     if(columnVal != null) return columnVal;
     if(columnName != null && "TABLE_NAME".equals(columnName)) {
-      try {
-        columnVal = super.getString("tab_name");
-      }
-      catch(SQLException se) {
-        // Throw the original exception (or this one if exception is null)
-        throw (exception == null) ? se : exception;
+      if(columnName != null && "TABLE_NAME".equals(columnName)) {
+        try {
+          // If we're using the "show tables" hack in getTables(), return the first column
+          columnVal = super.getString(1);
+        }
+        catch(SQLException se) {
+          throw (exception == null) ? se : exception;
+        }
       }
     }
     return columnVal;
-  }
-
+}
 }

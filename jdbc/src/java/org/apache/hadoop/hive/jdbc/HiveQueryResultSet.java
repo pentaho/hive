@@ -42,6 +42,8 @@ import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
 import org.apache.hadoop.hive.service.HiveInterface;
 import org.apache.hadoop.hive.service.HiveServerException;
 import org.apache.hadoop.io.BytesWritable;
+import org.apache.hive.service.cli.thrift.TCLIService;
+import org.apache.hive.service.cli.thrift.TSessionHandle;
 
 /**
  * HiveQueryResultSet.
@@ -224,4 +226,32 @@ public class HiveQueryResultSet extends HiveBaseResultSet {
 
     return obj;
   }
+  
+ // TODO: REMOVE THIS HACK!!!! Hive's "show tables" command returns a column name of "tab_name" instead of the
+ // JDBC-compliant TABLE_NAME
+ @Override
+ public String getString(String columnName) throws SQLException {
+   
+   
+   String columnVal = null;
+   SQLException exception = null;
+   try {
+     columnVal = super.getString(columnName);
+   }
+   catch(SQLException se) {
+     // Save for returning later
+     exception = se;
+   }
+   if(columnVal != null) return columnVal;
+   if(columnName != null && "TABLE_NAME".equals(columnName)) {
+     try {
+       // If we're using the "show tables" hack in getTables(), return the first column
+       columnVal = super.getString(1);
+     }
+     catch(SQLException se) {
+       throw (exception == null) ? se : exception;
+     }
+   }
+   return columnVal;
+ }
 }
