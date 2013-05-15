@@ -606,8 +606,13 @@ public class HiveDatabaseMetaData implements DatabaseMetaData {
                              String tableNamePattern, String[] types) throws SQLException {
     
     boolean tables = false;
-    for(String type : types) {
-      if("TABLE".equals(type)) tables = true;
+    if(types == null) {
+      tables = true;
+    }
+    else {
+      for(String type : types) {
+        if("TABLE".equals(type)) tables = true;
+      }
     }
     // HACK!!!
     // If we're looking for tables, execute "show tables" query instead
@@ -1118,6 +1123,14 @@ public class HiveDatabaseMetaData implements DatabaseMetaData {
 
   public <T> T unwrap(Class<T> iface) throws SQLException {
     throw new SQLException("Method not supported");
+  }
+  
+  public TCLIService.Iface getClient() {
+    return client;
+  }
+
+  public TSessionHandle getSessHandle() {
+    return sessHandle;
   }
 
   public static void main(String[] args) throws SQLException {
