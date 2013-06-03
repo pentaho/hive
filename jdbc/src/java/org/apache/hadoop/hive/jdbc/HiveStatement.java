@@ -513,4 +513,13 @@ public class HiveStatement implements java.sql.Statement {
     throw new SQLException("Method not supported");
   }
 
+  public void closeOnCompletion() throws SQLException {
+    // JDK 1.7
+    throw new SQLException("Method not supported");
+  }
+  
+  public boolean isCloseOnCompletion() throws SQLException {
+    // JDK 1.7
+    throw new SQLException("Method not supported");
+  }
 }

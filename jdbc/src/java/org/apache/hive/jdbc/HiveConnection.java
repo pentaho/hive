@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 
 import javax.security.sasl.SaslException;
 
@@ -755,4 +756,28 @@ public class HiveConnection implements java.sql.Connection {
     throw new SQLException("Method not supported");
   }
 
+  public void abort(Executor executor) throws SQLException {
+    // JDK 1.7
+    throw new SQLException("Method not supported");
+  }
+  
+  public int getNetworkTimeout() throws SQLException {
+    // JDK 1.7
+    throw new SQLException("Method not supported");
+  }
+  
+  public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
+    // JDK 1.7
+    throw new SQLException("Method not supported");
+  }
+
+  public String getSchema() throws SQLException {
+    // JDK 1.7
+    throw new SQLException("Method not supported");
+  }
+  
+  public void setSchema(String schema) throws SQLException {
+    // JDK 1.7
+    throw new SQLException("Method not supported");
+  }
 }
