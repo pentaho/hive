@@ -1132,6 +1132,26 @@ public class HiveDatabaseMetaData implements DatabaseMetaData {
   public TSessionHandle getSessHandle() {
     return sessHandle;
   }
+  
+  public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+    // TODO method required by JDK 1.7
+    throw new SQLException("Method not supported");
+  }
+
+  public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
+    // TODO method required by JDK 1.7
+    throw new SQLException("Method not supported");
+  }
+  
+  public ResultSet getPseudoColumns(String catalog, String schemaPattern, 
+       String tableNamePattern, String columnNamePattern) throws SQLException {
+    throw new SQLException("Method not supported");
+  }
+  
+  public boolean generatedKeyAlwaysReturned() throws SQLException {
+    // JDK 1.7
+    throw new SQLException("Method not supported");
+  }
 
   public static void main(String[] args) throws SQLException {
     HiveDatabaseMetaData meta = new HiveDatabaseMetaData(null, null);

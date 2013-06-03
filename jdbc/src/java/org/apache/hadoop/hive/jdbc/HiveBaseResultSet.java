@@ -984,4 +984,14 @@ public abstract class HiveBaseResultSet implements ResultSet{
   public <T> T unwrap(Class<T> iface) throws SQLException {
     throw new SQLException("Method not supported");
   }
+  
+  public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+    // TODO method required by JDK 1.7
+    throw new SQLException("Method not supported");
+  }
+
+  public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
+    // TODO method required by JDK 1.7
+    throw new SQLException("Method not supported");
+  }
 }

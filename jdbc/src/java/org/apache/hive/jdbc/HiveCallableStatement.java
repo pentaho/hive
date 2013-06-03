@@ -2438,5 +2438,24 @@ public class HiveCallableStatement implements java.sql.CallableStatement {
     // TODO Auto-generated method stub
     throw new SQLException("Method not supported");
   }
+  
+  public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+    // TODO method required by JDK 1.7
+    throw new SQLException("Method not supported");
+  }
 
+  public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
+    // TODO method required by JDK 1.7
+    throw new SQLException("Method not supported");
+  }
+
+  public void closeOnCompletion() throws SQLException {
+    // JDK 1.7
+    throw new SQLException("Method not supported");
+  }
+  
+  public boolean isCloseOnCompletion() throws SQLException {
+    // JDK 1.7
+    throw new SQLException("Method not supported");
+  }
 }
