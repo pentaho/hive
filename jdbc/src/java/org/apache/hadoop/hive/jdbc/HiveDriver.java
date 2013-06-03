@@ -24,9 +24,11 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 /**
@@ -293,5 +295,9 @@ public class HiveDriver implements Driver {
       throw new SQLException("Couldn't load manifest attributes.", e);
     }
     return manifestAttributes.getValue(attributeName);
+  }
+
+  public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+    return null;
   }
 }
